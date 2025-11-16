@@ -177,7 +177,7 @@ def encode():
         counts = job.result().get_counts()
         
         # Get circuit as string
-        circuit_str = qc.draw(output='text', fold=-1).split('\n')
+        circuit_str = str(qc.draw(output='text', fold=-1)).split('\n')
         
         return jsonify({
             'success': True,
@@ -218,7 +218,7 @@ def introduce_error():
         job = simulator.run(transpile(qc, simulator), shots=1000)
         counts = job.result().get_counts()
         
-        circuit_str = qc.draw(output='text', fold=-1).split('\n')
+        circuit_str = str(qc.draw(output='text', fold=-1)).split('\n')
         
         return jsonify({
             'success': True,
@@ -258,7 +258,7 @@ def introduce_random_error():
         job = simulator.run(transpile(qc, simulator), shots=1000)
         counts = job.result().get_counts()
         
-        circuit_str = qc.draw(output='text', fold=-1).split('\n')
+        circuit_str = str(qc.draw(output='text', fold=-1)).split('\n')
         
         return jsonify({
             'success': True,
@@ -306,7 +306,7 @@ def correct():
         success_count = counts.get(expected, 0)
         success_rate = (success_count / 1000) * 100
         
-        circuit_str = qc.draw(output='text', fold=-1).split('\n')
+        circuit_str = str(qc.draw(output='text', fold=-1)).split('\n')
         
         return jsonify({
             'success': True,
@@ -345,20 +345,20 @@ def pipeline():
         # Initialize
         if initial_state == '1':
             qc.x(0)
-        qc.barrier(label='Init')
         
         # Encode
         qc.cx(0, 1)
         qc.cx(0, 2)
-        qc.barrier(label='Encode')
         
         # Error
         qc.x(error_qubit)
-        qc.barrier(label='Error')
         
-        # Correction
+        # Correct (flip the same qubit back)
         qc.x(error_qubit)
-        qc.barrier(label='Correct')
+        
+        # Decode
+        qc.cx(0, 2)
+        qc.cx(0, 1)
         
         # Measure
         qc.measure([0, 1, 2], [0, 1, 2])
@@ -367,11 +367,13 @@ def pipeline():
         job = simulator.run(transpile(qc, simulator), shots=shots)
         counts = job.result().get_counts()
         
+        processed_counts = counts
+        
         expected = '000' if initial_state == '0' else '111'
-        success_count = counts.get(expected, 0)
+        success_count = processed_counts.get(expected, 0)
         success_rate = (success_count / shots) * 100
         
-        circuit_str = qc.draw(output='text', fold=-1).split('\n')
+        circuit_str = str(qc.draw(output='text', fold=-1)).split('\n')
         
         return jsonify({
             'success': True,
@@ -384,7 +386,7 @@ def pipeline():
                 'corrected': success_rate >= 99.0
             },
             'circuit': circuit_str,
-            'measurements': counts,
+            'measurements': processed_counts,
             'shots': shots
         })
     
