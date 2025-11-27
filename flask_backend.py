@@ -394,9 +394,94 @@ def pipeline():
         return jsonify({'success': False, 'error': str(e)}), 400
 
 
+def get_hardcoded_quantum_states(initial_state, error_qubit):
+    """Hard-coded quantum states based on the provided table logic."""
+    
+    # Define states as in the table from the image
+    if initial_state == '0':
+        states = {
+            'initial': {
+                'dominant_state': '|0⟩',
+                'statevector': [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'probabilities': [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            },
+            'encoded': {
+                'dominant_state': '|000⟩',
+                'statevector': [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'probabilities': [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            },
+            'corrected': {
+                'dominant_state': '|000⟩',
+                'statevector': [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'probabilities': [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            }
+        }
+        
+        # Error states based on error qubit
+        if error_qubit == 0:
+            states['with_error'] = {
+                'dominant_state': '|100⟩',
+                'statevector': [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+                'probabilities': [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+            }
+        elif error_qubit == 1:
+            states['with_error'] = {
+                'dominant_state': '|010⟩',
+                'statevector': [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'probabilities': [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            }
+        elif error_qubit == 2:
+            states['with_error'] = {
+                'dominant_state': '|001⟩',
+                'statevector': [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                'probabilities': [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            }
+            
+    else:  # initial_state == '1'
+        states = {
+            'initial': {
+                'dominant_state': '|1⟩',
+                'statevector': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                'probabilities': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+            },
+            'encoded': {
+                'dominant_state': '|111⟩',
+                'statevector': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                'probabilities': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+            },
+            'corrected': {
+                'dominant_state': '|111⟩',
+                'statevector': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                'probabilities': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+            }
+        }
+        
+        # Error states based on error qubit
+        if error_qubit == 0:
+            states['with_error'] = {
+                'dominant_state': '|011⟩',
+                'statevector': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+                'probabilities': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+            }
+        elif error_qubit == 1:
+            states['with_error'] = {
+                'dominant_state': '|101⟩',
+                'statevector': [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+                'probabilities': [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+            }
+        elif error_qubit == 2:
+            states['with_error'] = {
+                'dominant_state': '|110⟩',
+                'statevector': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+                'probabilities': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+            }
+    
+    return states
+
+
 @app.route('/statevector', methods=['POST'])
 def statevector_analysis():
-    """Get statevector analysis at each stage."""
+    """Get hard-coded statevector analysis at each stage based on predefined table."""
     try:
         data = request.json
         initial_state = data.get('state', '0')
@@ -409,67 +494,25 @@ def statevector_analysis():
         elif error_qubit not in [0, 1, 2]:
             return jsonify({'success': False, 'error': 'Invalid qubit'}), 400
         
-        results = {}
+        # Get hard-coded states based on the table logic
+        results = get_hardcoded_quantum_states(initial_state, error_qubit)
         
-        # Stage 1: Initial
-        qc1 = QuantumCircuit(3)
-        if initial_state == '1':
-            qc1.x(0)
-        sv1 = Statevector(qc1)
-        results['initial'] = {
-            'statevector': [complex(x).real if complex(x).imag == 0 else str(complex(x)) 
-                           for x in sv1.data],
-            'probabilities': [float(abs(x)**2) for x in sv1.data]
-        }
-        
-        # Stage 2: Encoded
-        qc2 = QuantumCircuit(3)
-        if initial_state == '1':
-            qc2.x(0)
-        qc2.cx(0, 1)
-        qc2.cx(0, 2)
-        sv2 = Statevector(qc2)
-        results['encoded'] = {
-            'statevector': [complex(x).real if complex(x).imag == 0 else str(complex(x))
-                           for x in sv2.data],
-            'probabilities': [float(abs(x)**2) for x in sv2.data]
-        }
-        
-        # Stage 3: With error
-        qc3 = QuantumCircuit(3)
-        if initial_state == '1':
-            qc3.x(0)
-        qc3.cx(0, 1)
-        qc3.cx(0, 2)
-        qc3.x(error_qubit)
-        sv3 = Statevector(qc3)
-        results['with_error'] = {
-            'statevector': [complex(x).real if complex(x).imag == 0 else str(complex(x))
-                           for x in sv3.data],
-            'probabilities': [float(abs(x)**2) for x in sv3.data]
-        }
-        
-        # Stage 4: Corrected
-        qc4 = QuantumCircuit(3)
-        if initial_state == '1':
-            qc4.x(0)
-        qc4.cx(0, 1)
-        qc4.cx(0, 2)
-        qc4.x(error_qubit)
-        qc4.x(error_qubit)
-        sv4 = Statevector(qc4)
-        results['corrected'] = {
-            'statevector': [complex(x).real if complex(x).imag == 0 else str(complex(x))
-                           for x in sv4.data],
-            'probabilities': [float(abs(x)**2) for x in sv4.data]
+        # Add stage descriptions for better UI display
+        stage_descriptions = {
+            'initial': f'Initial State = {initial_state}',
+            'encoded': f'Encoded State (any error qubit)',
+            'with_error': f'With Error on Qubit {error_qubit}',
+            'corrected': f'Corrected State (any error qubit)'
         }
         
         return jsonify({
             'success': True,
+            'initial_state': initial_state,
             'error_qubit': error_qubit,
             'randomly_selected': use_random_error,
             'stages': results,
-            'basis_states': ['000', '001', '010', '011', '100', '101', '110', '111']
+            'stage_descriptions': stage_descriptions,
+            'basis_states': ['|000⟩', '|001⟩', '|010⟩', '|011⟩', '|100⟩', '|101⟩', '|110⟩', '|111⟩']
         })
     
     except Exception as e:
@@ -746,7 +789,7 @@ def add_error():
     Request: JSON with state and error_qubit
     Response: JSON with measurements after error
     """
-    return error()
+    return introduce_error()
 
 
 @app.route('/correct_error', methods=['POST'])

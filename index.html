@@ -21,18 +21,18 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div class="logo-3d">
-                        <span class="logo-text">01</span>
-                    </div>
-                    <div>
+                <div class="header-left">
+                    <div class="header-icon">01</div>
+                    <div class="header-text">
                         <h1>Quantum Error Correction</h1>
                         <p class="header-subtitle">3-Qubit Bit-Flip Error Correction System</p>
                     </div>
                 </div>
-                <div class="status-badge">
-                    <span class="status-dot"></span>
-                    Server Running
+                <div class="header-right">
+                    <div class="status-badge">
+                        <span class="status-dot"></span>
+                        Server Running
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,246 +41,217 @@
     <!-- Main Content -->
     <main class="main-wrapper">
         <div class="container">
-            <div class="content-grid">
-                <!-- Left Column: Control Panel + File Management -->
+            <!-- Success Alert -->
+            <div class="alert alert-success" id="success-alert" style="display: none; margin-bottom: 2rem;">
+                <span class="alert-icon">✅</span>
                 <div>
-                    <!-- Control Panel -->
-                    <div class="card slide-up">
-                        <div class="card-header">
-                            <span class="card-icon">🎛️</span>
-                            <div>
-                                <h2 class="card-title">Control Panel</h2>
-                                <p class="card-subtitle">Configure quantum parameters</p>
-                            </div>
-                        </div>
+                    <strong>Success!</strong> Error correction completed successfully.
+                </div>
+            </div>
 
-                    <!-- Initial State Selection -->
-                    <div class="form-group">
-                        <label class="form-label" for="initial-state">Initial Quantum State</label>
-                        <select id="initial-state" class="form-select">
-                            <option value="0">|0⟩ - Ground State</option>
-                            <option value="1">|1⟩ - Excited State</option>
-                        </select>
-                    </div>
-
-                    <!-- Error Qubit Selection -->
-                    <div class="form-group">
-                        <label class="form-label" for="error-qubit">Error Qubit Position</label>
-                        <select id="error-qubit" class="form-select">
-                            <option value="random">🎲 Random (Surprise Me!)</option>
-                            <option value="0">Qubit 0</option>
-                            <option value="1" selected>Qubit 1</option>
-                            <option value="2">Qubit 2</option>
-                        </select>
-                    </div>
-
-                    <!-- Number of Shots -->
-                    <div class="form-group">
-                        <label class="form-label" for="shots">Number of Shots</label>
-                        <input type="number" id="shots" class="form-input" value="1000" min="100" max="10000" step="100">
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="form-group">
-                        <button class="btn btn-primary btn-block btn-lg" onclick="runPipeline()">
-                            <span>▶️</span>
-                            Run Error Correction
-                        </button>
-                    </div>
-
-                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <button class="btn btn-secondary" onclick="encodeQubit()">
-                            Encode Only
-                        </button>
-                        <button class="btn btn-secondary" onclick="testRandomError()">
-                            🎲 Random Error
-                        </button>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button class="btn btn-secondary btn-block" onclick="getStatevector()">
-                            View Statevector
-                        </button>
-                    </div>
-
-                    </div>
-
-                    <!-- File Management Card (Blob API) -->
-                    <div class="card slide-up" style="margin-top: var(--spacing-lg);">
-                        <div class="card-header">
-                            <span class="card-icon">📁</span>
-                            <div>
-                                <h2 class="card-title">File Management</h2>
-                                <p class="card-subtitle">Local Blob API - Upload & Download</p>
-                            </div>
-                        </div>
-
-                        <div style="padding: 1.5rem;">
-                            <!-- Upload Section -->
-                            <div class="upload-section">
-                                <label class="upload-label">
-                                    <span>📤 Upload File</span>
-                                    <input type="file" id="file-input" style="display: none;" onchange="handleFileSelect(event)">
-                                </label>
-                                <button class="btn-secondary" onclick="document.getElementById('file-input').click()">
-                                    <span>📎</span> Choose File
-                                </button>
-                                <button class="btn-primary" id="upload-btn" onclick="uploadFile()" disabled>
-                                    <span>📤</span> Upload
-                                </button>
-                            </div>
-
-                            <div id="upload-status" style="margin-top: 1rem; display: none;"></div>
-
-                            <!-- Files List Section -->
-                            <div style="margin-top: 2rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                    <h3 style="color: var(--text-primary); font-size: 1rem; font-weight: 600;">Uploaded Files</h3>
-                                    <button class="btn-secondary btn-sm" onclick="refreshFileList()">
-                                        <span>🔄</span> Refresh
-                                    </button>
+            <div class="layout-grid">
+                <!-- Top Row -->
+                <div class="layout-row">
+                    <!-- Control Panel (Top Left) -->
+                    <div class="layout-section">
+                        <div class="card slide-up">
+                            <div class="card-header">
+                                <span class="card-icon">🎛️</span>
+                                <div>
+                                    <h2 class="card-title">Control Panel</h2>
+                                    <p class="card-subtitle">Configure quantum parameters</p>
                                 </div>
-                                
-                                <div id="files-list" class="files-list">
-                                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-                                        No files uploaded yet. Upload a file to get started.
-                                    </p>
+                            </div>
+
+                            <!-- Initial State Selection -->
+                            <div class="form-group">
+                                <label class="form-label" for="initial-state">Initial Quantum State</label>
+                                <select id="initial-state" class="form-select">
+                                    <option value="0">|0⟩ - Ground State</option>
+                                    <option value="1">|1⟩ - Excited State</option>
+                                </select>
+                            </div>
+
+                            <!-- Error Qubit Selection -->
+                            <div class="form-group">
+                                <label class="form-label" for="error-qubit">Error Qubit Position</label>
+                                <select id="error-qubit" class="form-select">
+                                    <option value="random">🎲 Random (Surprise Me!)</option>
+                                    <option value="0">Qubit 0</option>
+                                    <option value="1" selected>Qubit 1</option>
+                                    <option value="2">Qubit 2</option>
+                                </select>
+                            </div>
+
+                            <!-- Number of Shots -->
+                            <div class="form-group">
+                                <label class="form-label" for="shots">Number of Shots</label>
+                                <input type="number" id="shots" class="form-input" value="1000" min="100" max="10000" step="100">
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-block btn-lg" onclick="runPipeline()">
+                                    <span>▶️</span>
+                                    Run Error Correction
+                                </button>
+                            </div>
+
+                            <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <button class="btn btn-secondary" onclick="encodeQubit()">
+                                    Encode Only
+                                </button>
+                                <button class="btn btn-secondary" onclick="testRandomError()">
+                                    🎲 Random Error
+                                </button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button class="btn btn-secondary btn-block" onclick="getStatevector()">
+                                    View Statevector
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Panel (Top Right) -->
+                    <div class="layout-section">
+                        <div class="card slide-up">
+                            <div class="card-header">
+                                <span class="card-icon">📊</span>
+                                <div>
+                                    <h2 class="card-title">Results</h2>
+                                    <p class="card-subtitle">Quantum simulation statistics</p>
+                                </div>
+                            </div>
+
+                            <div class="stats-grid">
+                                <div class="stat-box">
+                                    <div class="stat-label">Initial State</div>
+                                    <div class="stat-value" id="stat-initial">|0⟩</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-label">Error Qubit</div>
+                                    <div class="stat-value" id="stat-error">-</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-label">Success Rate</div>
+                                    <div class="stat-value success" id="stat-success">-</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-label">Corrected</div>
+                                    <div class="stat-value" id="stat-corrected">-</div>
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="progress-container">
+                                <div class="progress-label">
+                                    <span>Error Correction Success</span>
+                                    <span id="progress-percent">0%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-fill" style="width: 0%;">0%</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column: Results Panel -->
-                <div class="results-container slide-up">
-                    <!-- Success Alert -->
-                    <div class="alert alert-success" id="success-alert" style="display: none;">
-                        <span class="alert-icon">✅</span>
+                <!-- Bottom Row -->
+                <div class="layout-row">
+                    <!-- File Management (Bottom Left) -->
+                    <div class="layout-section">
+                        <div class="card slide-up">
+                            <div class="card-header">
+                                <span class="card-icon">📁</span>
+                                <div>
+                                    <h2 class="card-title">File Management</h2>
+                                    <p class="card-subtitle">Local Blob API - Upload & Download</p>
+                                </div>
+                            </div>
+
+                            <div style="padding: 1.5rem;">
+                                <!-- Upload Section -->
+                                <div class="upload-section">
+                                    <label class="upload-label">
+                                        <span>📤 Upload File</span>
+                                        <input type="file" id="file-input" style="display: none;" onchange="handleFileSelect(event)">
+                                    </label>
+                                    <button class="btn-secondary" onclick="document.getElementById('file-input').click()">
+                                        <span>📎</span> Choose File
+                                    </button>
+                                    <button class="btn-primary" id="upload-btn" onclick="uploadFile()" disabled>
+                                        <span>📤</span> Upload
+                                    </button>
+                                </div>
+
+                                <div id="upload-status" style="margin-top: 1rem; display: none;"></div>
+
+                                <!-- Files List Section -->
+                                <div style="margin-top: 2rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                        <h3 style="color: var(--text-primary); font-size: 1rem; font-weight: 600;">Uploaded Files</h3>
+                                        <button class="btn-secondary btn-sm" onclick="refreshFileList()">
+                                            <span>🔄</span> Refresh
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="files-list" class="files-list">
+                                        <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                                            No files uploaded yet. Upload a file to get started.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantum Circuit (Bottom Right) -->
+                    <div class="layout-section">
+                        <div class="card slide-up">
+                            <div class="card-header">
+                                <span class="card-icon">🔄</span>
+                                <div>
+                                    <h2 class="card-title">Quantum Circuit</h2>
+                                    <p class="card-subtitle">Visual representation</p>
+                                </div>
+                                <button class="btn-export" id="export-circuit-btn" onclick="exportCircuit()" disabled title="Run a simulation first to export">
+                                    <span>📥</span> Export Circuit
+                                </button>
+                            </div>
+
+                            <div class="circuit-diagram" id="circuit-diagram">
+                                <pre>No circuit generated yet. Run a simulation to see the circuit.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statevector Visualization (Full Width) -->
+                <div class="card" id="statevector-card" style="display: none; margin-top: 2rem;">
+                    <div class="card-header">
+                        <span class="card-icon">🌊</span>
                         <div>
-                            <strong>Success!</strong> Error correction completed successfully.
+                            <h2 class="card-title">Statevector Analysis</h2>
+                            <p class="card-subtitle">Quantum state probabilities</p>
                         </div>
                     </div>
 
-                    <!-- Statistics Card -->
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-icon">📊</span>
-                            <div>
-                                <h2 class="card-title">Results</h2>
-                                <p class="card-subtitle">Quantum simulation statistics</p>
-                            </div>
-                        </div>
-
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <div class="stat-label">Initial State</div>
-                                <div class="stat-value" id="stat-initial">|0⟩</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">Error Qubit</div>
-                                <div class="stat-value" id="stat-error">-</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">Success Rate</div>
-                                <div class="stat-value success" id="stat-success">-</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">Corrected</div>
-                                <div class="stat-value" id="stat-corrected">-</div>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="progress-container">
-                            <div class="progress-label">
-                                <span>Error Correction Success</span>
-                                <span id="progress-percent">0%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="progress-fill" style="width: 0%;">0%</div>
-                            </div>
-                        </div>
+                    <div style="margin-bottom: 1.5rem; min-height: 250px; position: relative; background: #1e293b; border-radius: 8px; padding: 10px;">
+                        <canvas id="statevector-chart" width="400" height="250" style="display: block; box-sizing: border-box; height: 250px; width: 400px;"></canvas>
                     </div>
 
-                    <!-- Measurements Card -->
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-icon">📈</span>
-                            <div>
-                                <h2 class="card-title">Measurements</h2>
-                                <p class="card-subtitle">Quantum state measurements</p>
-                            </div>
-                        </div>
-
-                        <!-- Visualization Canvas -->
-                        <div style="margin-bottom: 1.5rem; min-height: 300px; position: relative; background: #1e293b; border-radius: 8px; padding: 10px;">
-                            <canvas id="measurements-chart" width="400" height="300" style="display: block; box-sizing: border-box; height: 300px; width: 400px;"></canvas>
-                        </div>
-
-                        <!-- Table View -->
-                        <table class="measurements-table" id="measurements-table">
-                            <thead>
-                                <tr>
-                                    <th>State</th>
-                                    <th>Count</th>
-                                    <th>Probability</th>
-                                    <th>Visualization</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="4" style="text-align: center; color: var(--text-muted);">
-                                        No measurements yet. Run a simulation to see results.
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="tabs" id="statevector-tabs">
+                        <button class="tab active" onclick="showStatevectorStage('initial')">Initial</button>
+                        <button class="tab" onclick="showStatevectorStage('encoded')">Encoded</button>
+                        <button class="tab" onclick="showStatevectorStage('with_error')">With Error</button>
+                        <button class="tab" onclick="showStatevectorStage('corrected')">Corrected</button>
                     </div>
 
-                    <!-- Circuit Diagram Card -->
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-icon">🔄</span>
-                            <div>
-                                <h2 class="card-title">Quantum Circuit</h2>
-                                <p class="card-subtitle">Visual representation</p>
-                            </div>
-                            <button class="btn-export" id="export-circuit-btn" onclick="exportCircuit()" disabled title="Run a simulation first to export">
-                                <span>📥</span> Export Circuit
-                            </button>
-                        </div>
-
-                        <div class="circuit-diagram" id="circuit-diagram">
-                            <pre>No circuit generated yet. Run a simulation to see the circuit.</pre>
-                        </div>
+                    <div id="statevector-info" class="mt-2" style="color: var(--text-secondary); font-size: 0.875rem;">
+                        Select a stage to view the quantum state probabilities.
                     </div>
-
-                    <!-- Statevector Visualization Card -->
-                    <div class="card" id="statevector-card" style="display: none;">
-                        <div class="card-header">
-                            <span class="card-icon">🌊</span>
-                            <div>
-                                <h2 class="card-title">Statevector Analysis</h2>
-                                <p class="card-subtitle">Quantum state probabilities</p>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 1.5rem; min-height: 250px; position: relative; background: #1e293b; border-radius: 8px; padding: 10px;">
-                            <canvas id="statevector-chart" width="400" height="250" style="display: block; box-sizing: border-box; height: 250px; width: 400px;"></canvas>
-                        </div>
-
-                        <div class="tabs" id="statevector-tabs">
-                            <button class="tab active" onclick="showStatevectorStage('initial')">Initial</button>
-                            <button class="tab" onclick="showStatevectorStage('encoded')">Encoded</button>
-                            <button class="tab" onclick="showStatevectorStage('with_error')">With Error</button>
-                            <button class="tab" onclick="showStatevectorStage('corrected')">Corrected</button>
-                        </div>
-
-                        <div id="statevector-info" class="mt-2" style="color: var(--text-secondary); font-size: 0.875rem;">
-                            Select a stage to view the quantum state probabilities.
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -296,7 +267,6 @@
     <!-- JavaScript -->
     <script>
         const API_BASE = 'http://localhost:5000';
-        let measurementsChart = null;
         let statevectorChart = null;
         let currentStatevectorData = {};
 
@@ -309,6 +279,10 @@
                 return;
             }
             
+            // Skip measurements chart initialization (removed from UI)
+            console.log('Skipping measurements chart - UI component removed');
+            
+            /* OLD MEASUREMENTS CHART CODE COMMENTED OUT
             const ctx = document.getElementById('measurements-chart');
             if (!ctx) {
                 console.error('Canvas element not found');
@@ -441,8 +415,9 @@
                     }
                 }
             });
+            END OF COMMENTED MEASUREMENTS CHART CODE */
 
-            console.log('Measurements chart created successfully');
+            console.log('Measurements chart skipped (UI component removed)');
 
             // Initialize statevector chart
             const svCtx = document.getElementById('statevector-chart');
@@ -553,35 +528,35 @@
         }
 
         // Update chart with new data
-        function updateChart(measurements, totalShots) {
-            console.log('updateChart called with:', measurements, totalShots);
-            
-            if (!measurementsChart) {
-                console.log('Chart not initialized, initializing...');
-                initChart();
-            }
-            
-            if (!measurementsChart) {
-                console.error('Chart not initialized');
-                return;
-            }
+        // Generate and display circuit diagram
+        async function generateCircuit(initialState, errorQubit) {
+            try {
+                const response = await fetch(`${API_BASE}/visualize_circuit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        state: initialState, 
+                        error_qubit: errorQubit 
+                    })
+                });
 
-            const states = Object.keys(measurements).sort();
-            const counts = states.map(state => measurements[state]);
-            const maxCount = Math.max(...counts);
-            
-            console.log('Updating chart with states:', states, 'counts:', counts);
-
-            measurementsChart.data.labels = states.map(s => `|${s}⟩`);
-            measurementsChart.data.datasets[0].data = counts;
-            
-            // Update chart options
-            measurementsChart.options.scales.y.max = Math.ceil(maxCount * 1.1);
-            measurementsChart.options.plugins.title.display = false;
-            
-            // Force immediate chart update
-            measurementsChart.update('active');
-            console.log('Chart updated successfully');
+                const data = await response.json();
+                if (data.success && data.circuit) {
+                    document.getElementById('circuit-diagram').innerHTML = 
+                        `<pre>${data.circuit.join('\n')}</pre>`;
+                    
+                    // Enable export button
+                    const exportBtn = document.getElementById('export-circuit-btn');
+                    exportBtn.disabled = false;
+                    exportBtn.title = 'Download circuit as text file';
+                } else {
+                    console.error('Failed to generate circuit:', data.error);
+                }
+            } catch (error) {
+                console.error('Error generating circuit:', error);
+                document.getElementById('circuit-diagram').innerHTML = 
+                    '<pre>Failed to generate circuit. Please try again.</pre>';
+            }
         }
 
         // Update statevector chart with stage data
@@ -589,12 +564,12 @@
             if (!statevectorChart || !currentStatevectorData[stage]) return;
 
             const stageData = currentStatevectorData[stage];
-            const basisStates = ['000', '001', '010', '011', '100', '101', '110', '111'];
+            const basisStates = ['|000⟩', '|001⟩', '|010⟩', '|011⟩', '|100⟩', '|101⟩', '|110⟩', '|111⟩'];
             const probabilities = stageData.probabilities || [];
             
             // Filter out zero probabilities for cleaner display
             const nonZeroIndices = probabilities.map((p, i) => p > 0.001 ? i : -1).filter(i => i !== -1);
-            const labels = nonZeroIndices.map(i => `|${basisStates[i]}⟩`);
+            const labels = nonZeroIndices.map(i => basisStates[i]);
             const nonZeroProbabilities = nonZeroIndices.map(i => probabilities[i]);
 
             statevectorChart.data.labels = labels;
@@ -605,12 +580,13 @@
             
             statevectorChart.update('active');
 
-            // Update info text
+            // Update info text with hard-coded dominant state information
+            const dominantState = stageData.dominant_state || 'Unknown';
             const maxProb = Math.max(...nonZeroProbabilities);
-            const maxIndex = nonZeroIndices[nonZeroProbabilities.indexOf(maxProb)];
-            const maxState = basisStates[maxIndex];
+            const stageTitle = stage.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            
             document.getElementById('statevector-info').innerHTML = 
-                `Stage: <strong>${stage.replace('_', ' ')}</strong> | Dominant state: <strong>|${maxState}⟩</strong> (${(maxProb * 100).toFixed(2)}%)`;
+                `<strong>${stageTitle}</strong> | Dominant State: <strong>${dominantState}</strong> (${(maxProb * 100).toFixed(1)}% probability)`;
         }
 
         // Show statevector stage
@@ -738,65 +714,52 @@
         // Update results display
         async function updateResults(data) {
             console.log('updateResults called with data:', data);
-            const pipeline = data.pipeline;
-
-            // Update statistics
-            document.getElementById('stat-initial').textContent = `|${pipeline.initial_state}⟩`;
             
-            // Show random indicator if error was randomly selected
-            const errorText = pipeline.randomly_selected 
-                ? `Q${pipeline.error_qubit} 🎲` 
-                : `Q${pipeline.error_qubit}`;
-            document.getElementById('stat-error').textContent = errorText;
-            
-            document.getElementById('stat-success').textContent = `${pipeline.success_rate.toFixed(1)}%`;
-            document.getElementById('stat-corrected').textContent = pipeline.corrected ? '✅' : '❌';
+            try {
+                const pipeline = data.pipeline;
+                if (!pipeline) {
+                    console.error('Pipeline data missing in response:', data);
+                    return;
+                }
 
-            // Update progress bar
-            const progressFill = document.getElementById('progress-fill');
-            progressFill.style.width = `${pipeline.success_rate}%`;
-            progressFill.textContent = `${pipeline.success_rate.toFixed(1)}%`;
-            progressFill.classList.add('success');
-            document.getElementById('progress-percent').textContent = `${pipeline.success_rate.toFixed(1)}%`;
+                console.log('Updating statistics with pipeline data:', pipeline);
 
-            // Update measurements table
-            const tbody = document.querySelector('#measurements-table tbody');
-            tbody.innerHTML = '';
-            const measurements = data.measurements;
-            const totalShots = data.shots;
-            
-            console.log('Calling updateChart with measurements:', measurements, 'shots:', totalShots);
+                // Update statistics with error checking
+                const statInitial = document.getElementById('stat-initial');
+                const statError = document.getElementById('stat-error');
+                const statSuccess = document.getElementById('stat-success');
+                const statCorrected = document.getElementById('stat-corrected');
 
-            // Update chart
-            updateChart(measurements, totalShots);
-
-            // Sort states for consistent display
-            const sortedStates = Object.keys(measurements).sort();
-
-            for (const state of sortedStates) {
-                const count = measurements[state];
-                const probability = (count / totalShots * 100).toFixed(2);
+                if (statInitial) statInitial.textContent = `|${pipeline.initial_state}⟩`;
                 
-                // Create visual bar
-                const barWidth = probability;
-                const barColor = count === totalShots ? '#10b981' : '#6366f1';
+                // Show random indicator if error was randomly selected
+                const errorText = pipeline.randomly_selected 
+                    ? `Q${pipeline.error_qubit} 🎲` 
+                    : `Q${pipeline.error_qubit}`;
+                if (statError) statError.textContent = errorText;
                 
-                const row = `
-                    <tr>
-                        <td style="font-weight: 600;">|${state}⟩</td>
-                        <td>${count}</td>
-                        <td>${probability}%</td>
-                        <td>
-                            <div style="background: rgba(99, 102, 241, 0.1); border-radius: 4px; overflow: hidden; height: 20px;">
-                                <div style="background: ${barColor}; width: ${barWidth}%; height: 100%; transition: width 0.5s ease;"></div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
+                if (statSuccess) statSuccess.textContent = `${pipeline.success_rate.toFixed(1)}%`;
+                if (statCorrected) statCorrected.textContent = pipeline.corrected ? '✅' : '❌';
+
+                // Update progress bar
+                const progressFill = document.getElementById('progress-fill');
+                const progressPercent = document.getElementById('progress-percent');
+                
+                if (progressFill) {
+                    progressFill.style.width = `${pipeline.success_rate}%`;
+                    progressFill.textContent = `${pipeline.success_rate.toFixed(1)}%`;
+                    progressFill.classList.add('success');
+                }
+                if (progressPercent) {
+                    progressPercent.textContent = `${pipeline.success_rate.toFixed(1)}%`;
+                }
+
+                console.log('Statistics updated successfully');
+            } catch (error) {
+                console.error('Error updating results:', error);
             }
 
-            // Update circuit diagram
+            // Update circuit diagram from pipeline response
             if (data.circuit) {
                 document.getElementById('circuit-diagram').innerHTML = 
                     `<pre>${data.circuit.join('\n')}</pre>`;
@@ -805,6 +768,9 @@
                 const exportBtn = document.getElementById('export-circuit-btn');
                 exportBtn.disabled = false;
                 exportBtn.title = 'Download circuit as text file';
+            } else {
+                // Fallback: generate circuit separately if not provided in pipeline
+                await generateCircuit(pipeline.initial_state, pipeline.error_qubit);
             }
 
             // Fetch and display statevector data
@@ -965,8 +931,9 @@
 
                 const data = await response.json();
                 if (data.success) {
-                    // Store statevector data
+                    // Store statevector data and stage descriptions
                     currentStatevectorData = data.stages;
+                    window.stageDescriptions = data.stage_descriptions || {};
                     
                     // Show the statevector card
                     document.getElementById('statevector-card').style.display = 'block';
@@ -980,9 +947,11 @@
                     // Update chart with initial stage
                     updateStatevectorChart('initial');
                     
-                    // Show success message
-                    const randomInfo = data.randomly_selected ? ` (Random Error: Q${data.error_qubit})` : '';
-                    showSuccessMessage(`Statevector loaded successfully!${randomInfo}`);
+                    // Show success message with configuration details
+                    const initialState = data.initial_state;
+                    const errorQubit = data.error_qubit;
+                    const randomInfo = data.randomly_selected ? ` (Randomly selected)` : '';
+                    showSuccessMessage(`Hard-coded Quantum States Loaded! Initial: |${initialState}⟩, Error Qubit: ${errorQubit}${randomInfo}`);
                     
                     // Scroll to statevector card
                     document.getElementById('statevector-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1184,8 +1153,8 @@
         // Backup initialization
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
-                if (!measurementsChart || !statevectorChart) {
-                    console.log('Backup chart initialization...');
+                if (!statevectorChart) {
+                    console.log('Backup statevector chart initialization...');
                     initChart();
                 }
             }, 500);

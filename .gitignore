@@ -40,3 +40,6 @@ uploads/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Hardcoded implementations (development files)
+hardcoded_quantum_states.py
